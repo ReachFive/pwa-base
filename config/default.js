@@ -6,9 +6,17 @@
  */
 /* eslint-disable @typescript-eslint/no-var-requires */
 require('dotenv').config()
+require('dotenv').config({path: '.env.local', override: true})
 const sites = require('./sites.js')
 module.exports = {
+    reach5: {
+        REACH5_DOMAIN: process.env.REACH5_DOMAIN,
+        REACH5_CLIENT_ID: process.env.REACH5_CLIENT_ID,
+        REACH5_CLIENT_SECRET: process.env.REACH5_CLIENT_SECRET
+    },
     app: {
+        //if you want to enable the debug mode to show user data in frontend
+        debugMode: process.env.DEBUG_MODE === 'true',
         // Customize how your 'site' and 'locale' are displayed in the url.
         url: {
             // Determine where the siteRef is located. Valid values include 'path|query_param|none'. Defaults to: 'none'
@@ -20,6 +28,12 @@ module.exports = {
         },
         // The default site for your app. This value will be used when a siteRef could not be determined from the url
         defaultSite: process.env.siteId,
+        login: {
+            social: {
+                enabled: true,
+                idps: ['google', 'reach_five_slas', 'reach_five']
+            }
+        },
         // Provide aliases for your sites. These will be used in place of your site id when generating paths throughout the application.
         // siteAliases: {
         //     RefArch: 'us'
@@ -33,7 +47,9 @@ module.exports = {
                 clientId: process.env.clientId,
                 organizationId: process.env.organizationId,
                 shortCode: process.env.shortCode,
-                siteId: process.env.siteId
+                siteId: process.env.siteId,
+                // clientSecret, to make b64 to call session
+                clientSecret: process.env.PWA_KIT_SLAS_CLIENT_SECRET
             }
         },
         // Einstein api config
@@ -74,7 +90,7 @@ module.exports = {
                 path: 'api'
             },
             {
-                host: process.env.sandBoxHost,
+                host: process.env.sandBoxHostOcapi,
                 path: 'ocapi'
             }
         ]

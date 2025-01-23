@@ -37,14 +37,8 @@ const options = {
     // When setting this to true, make sure to also set the PWA_KIT_SLAS_CLIENT_SECRET
     // environment variable as this endpoint will return HTTP 501 if it is not set
     useSLASPrivateClient: true,
-
-    // If this is enabled, any HTTP header that has a non ASCII value will be URI encoded
-    // If there any HTTP headers that have been encoded, an additional header will be
-    // passed, `x-encoded-headers`, containing a comma separated list
-    // of the keys of headers that have been encoded
-    // There may be a slight performance loss with requests/responses with large number
-    // of headers as we loop through all the headers to verify ASCII vs non ASCII
-    encodeNonAsciiHttpHeaders: true
+    // this is to allow these endpoints to be accessed by the SLAS private client
+    applySLASPrivateClientToEndpoints: /oauth2\/(token|passwordless\/(login|token))/
 }
 
 const runtime = getRuntime()
@@ -55,6 +49,8 @@ const {handler} = runtime.createHandler(options, (app) => {
     // Set custom HTTP security headers
     app.use(
         helmet({
+            crossOriginEmbedderPolicy: false,
+            crossOriginResourcePolicy: false,
             contentSecurityPolicy: {
                 useDefaults: true,
                 directives: {
@@ -64,11 +60,18 @@ const {handler} = runtime.createHandler(options, (app) => {
                     ],
                     'script-src': [
                         // Used by the service worker in /worker/main.js
-                        'storage.googleapis.com'
+                        ...process.env.PWA_KIT_SCRIPT_SRC.split(','),
+                        'storage.googleapis.com',
+                        'cdn.jsdelivr.net',
+                        "'self' 'unsafe-eval' 'unsafe-inline'",
+                        'unsafe-inline',
+                        'script-dynamic',
+                        'inline-script'
                     ],
                     'connect-src': [
                         // Connect to Einstein APIs
-                        'api.cquotient.com'
+                        ...process.env.PWA_KIT_CONNECT_SRC.split(','),
+                        'api.cquotient.com',
                     ]
                 }
             }

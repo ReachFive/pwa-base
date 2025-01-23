@@ -46,8 +46,14 @@ const AppConfig = ({children, locals = {}}) => {
 
     const appOrigin = getAppOrigin()
 
+    let token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    token = token !== undefined && token !== 'undefined' ? token : null
+
     return (
         <CommerceApiProvider
+            // This to handle auth with reach5, we need to use this token
+            fetchedToken={token}
+            silenceWarnings={true}
             shortCode={commerceApiConfig.parameters.shortCode}
             clientId={commerceApiConfig.parameters.clientId}
             organizationId={commerceApiConfig.parameters.organizationId}
@@ -57,6 +63,7 @@ const AppConfig = ({children, locals = {}}) => {
             redirectURI={`${appOrigin}/callback`}
             proxy={`${appOrigin}${commerceApiConfig.proxyPath}`}
             headers={headers}
+            OCAPISessionsURL={`${appOrigin}${proxyBasePath}/ocapi/s/${locals.site?.id}/dw/shop/v22_8/sessions`}
             logger={createLogger({packageName: 'commerce-sdk-react'})}
             // Set 'enablePWAKitPrivateClient' to true use SLAS private client login flows.
             // Make sure to also enable useSLASPrivateClient in ssr.js when enabling this setting.
