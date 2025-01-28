@@ -6,6 +6,7 @@ import {SignoutIcon} from '@salesforce/retail-react-app/app/components/icons'
 import {useAuthHelper, AuthHelpers} from '@salesforce/commerce-sdk-react'
 import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
+import { getReachFiveClient } from '../../hooks/useReachFive'
 
 const LogoutButton = () => {
     const {formatMessage} = useIntl()
@@ -13,17 +14,17 @@ const LogoutButton = () => {
     const [showLoading, setShowLoading] = useState(false)
     const navigate = useNavigation()
     const siteId = getConfig().app.commerceAPI.parameters.siteId
-
+    
     const onSignoutClick = async () => {
         setShowLoading(true)
+        const client = await getReachFiveClient();
+        await client.logout();
+        await logout.mutateAsync()
         if (localStorage.getItem('token')) {
             localStorage.removeItem('token')
             localStorage.removeItem('refresh_token')
             localStorage.removeItem(`customer_type_${siteId}`)
-        } else {
-            await logout.mutateAsync()
         }
-        setTimeout(() => navigate('/'), 500)
         setShowLoading(false)
     }
 

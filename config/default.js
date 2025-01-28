@@ -92,6 +92,10 @@ module.exports = {
             {
                 host: process.env.sandBoxHostOcapi,
                 path: 'ocapi'
+            },
+            {
+                host: process.env.REACH5_DOMAIN,
+                path: 'reach5'
             }
         ]
     }

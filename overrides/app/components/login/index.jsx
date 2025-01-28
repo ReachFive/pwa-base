@@ -11,6 +11,7 @@ import {FormattedMessage} from 'react-intl'
 import {Alert, Button, Stack, Text} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {AlertIcon, BrandLogo} from '@salesforce/retail-react-app/app/components/icons'
 import StandardLogin from '../standard-login'
+import SocialLogin from '../social-login'
 import {noop} from '@salesforce/retail-react-app/app/utils/utils'
 
 const LoginForm = ({submitForm, handleForgotPasswordClick, clickCreateAccount = noop, form}) => {
@@ -44,22 +45,23 @@ const LoginForm = ({submitForm, handleForgotPasswordClick, clickCreateAccount = 
                         handleForgotPasswordClick={handleForgotPasswordClick}
                     />
 
-                    <Stack direction="row" spacing={1} justify="center">
-                        <Text fontSize="sm">
-                            <FormattedMessage
-                                defaultMessage="Don't have an account?"
-                                id="login_form.message.dont_have_account"
-                            />
-                        </Text>
-                        <Button variant="link" size="sm" onClick={clickCreateAccount}>
-                            <FormattedMessage
-                                defaultMessage="Create account"
-                                id="login_form.action.create_account"
-                            />
-                        </Button>
-                    </Stack>
                 </Stack>
             </form>
+            <SocialLogin />
+            <Stack direction="row" spacing={1} justify="center">
+                <Text fontSize="sm">
+                    <FormattedMessage
+                        defaultMessage="Don't have an account?"
+                        id="login_form.message.dont_have_account"
+                    />
+                </Text>
+                <Button variant="link" size="sm" onClick={clickCreateAccount}>
+                    <FormattedMessage
+                        defaultMessage="Create account"
+                        id="login_form.action.create_account"
+                    />
+                </Button>
+            </Stack>
         </Fragment>
     )
 }

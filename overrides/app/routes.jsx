@@ -40,6 +40,11 @@ const routes = [
         component: IdpCallback
     },
     {
+        // this is kind of hosted page for login
+        path: '/reach-five/login',
+        component: R5Auth
+    },
+    {
         path: '/r5/auth',
         component: R5Auth
     },

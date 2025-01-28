@@ -52,7 +52,7 @@ export const ReachFiveLogin = () => {
                             auth: {
                                 redirectUri: 'http://localhost:3000/silent-auth',
                                 // redirectUri: config.redirectUri,
-                                state
+                                // state
                             }
                         }))()
                 }

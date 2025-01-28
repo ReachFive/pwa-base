@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import {FormattedMessage} from 'react-intl'
 import {Button, Divider, Stack, Text} from '@salesforce/retail-react-app/app/components/shared/ui'
 import LoginFields from '../forms/login-fields'
-import SocialLogin from '../social-login'
 
 const StandardLogin = ({form, handleForgotPasswordClick, hideEmail = false}) => {
     return (
@@ -25,7 +24,6 @@ const StandardLogin = ({form, handleForgotPasswordClick, hideEmail = false}) => 
                 >
                     <FormattedMessage defaultMessage="Sign In" id="login_form.button.sign_in" />
                 </Button>
-                <SocialLogin />
             </Stack>
         </Stack>
     )

@@ -11,12 +11,15 @@
     "overridesDir": "overrides"
   },
   "devDependencies": {
-    "@salesforce/retail-react-app": "5.0.0"
+    "@playwright/test": "^1.50.0",
+    "@salesforce/retail-react-app": "5.0.0",
+    "@types/node": "^22.10.10"
   },
   "scripts": {
     "lint": "pwa-kit-dev lint \"**/*.{js,jsx}\"",
     "push": "npm run build && pwa-kit-dev push",
     "test": "pwa-kit-dev test",
+    "test:e2e": "playwright test",
     "build": "npm run build-translations && pwa-kit-dev build",
     "start": "cross-env NODE_ICU_DATA=node_modules/full-icu pwa-kit-dev start",
     "format": "pwa-kit-dev format \"**/*.{js,jsx}\"",
@@ -50,9 +53,9 @@
     "last 4 ChromeAndroid versions"
   ],
   "dependencies": {
-    "dotenv": "^16.4.7",
     "@chakra-ui/layout": "^2.3.1",
     "@reachfive/identity-core": "^1.33.0",
-    "@reachfive/identity-ui": "^1.28.0"
+    "@reachfive/identity-ui": "^1.28.0",
+    "dotenv": "^16.4.7"
   }
 }

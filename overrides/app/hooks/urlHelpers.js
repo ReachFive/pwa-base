@@ -8,11 +8,11 @@ const domainRoot = ({proxy = true, proxyHost = 'api', isSecure = true}) => {
     const config = getConfig()
     // const proxyPath = config.app.commerceAPI.proxyPath;
     const proxyPath = `/mobify/proxy/${proxyHost}`
-    const host = config.ssrParameters.proxyConfigs.find((config) =>
+    const proxyConf = config.ssrParameters.proxyConfigs.find((config) =>
         config.path.includes(proxyHost)
-    ).host
+    )
     const secu = isSecure ? 'https://' : 'http://'
-    return proxy ? `${getAppOrigin()}${proxyPath}` : `${secu}${host}`
+    return proxy ? `${getAppOrigin()}${proxyPath}` : `${secu}${proxyConf.host}`
 }
 
 const finalizeUrl = (url, urlParams) => {
