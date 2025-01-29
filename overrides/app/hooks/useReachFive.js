@@ -16,25 +16,6 @@ let client = {
     core: null,
     ui: null
 }
-// this is back behavior, don't use on front as it use reach5 client id and secret
-export const getTokenFromCode = async (code) => {
-    // try with proxy, not working
-    // const call = await fetch(`${getAppOrigin()}/mobify/proxy/reach5${options.path}`, {
-    return await fetch(`https://${getConfig().reach5.REACH5_DOMAIN}${options.path}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-            // 'User-Agent': 'Node.js'
-        },
-        body: JSON.stringify({
-            code,
-            grant_type: 'authorization_code',
-            client_id: getConfig().reach5.REACH5_CLIENT_ID,
-            client_secret: getConfig().reach5.REACH5_CLIENT_SECRET,
-            redirect_uri: 'http://localhost:3000/oauth/callback'
-        })
-    }).then((res) => res.json())
-}
 
 const makeClient = (reach5, createClient) =>
     createClient({

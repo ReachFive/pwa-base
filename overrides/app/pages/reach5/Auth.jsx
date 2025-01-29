@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {useCurrentCustomer} from '@salesforce/retail-react-app/app/hooks/use-current-customer'
 import {useAuthHelper, AuthHelpers} from '@salesforce/commerce-sdk-react'
-import {getReachFiveClientUI} from '../../hooks/useReachFive'
+import {useReachFive} from '../../hooks/use-reach-five'
 import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 
@@ -14,11 +14,10 @@ export const Reach5Auth = () => {
     const logout = useAuthHelper(AuthHelpers.Logout)
     const debugMode = getConfig().app.debugMode || false
     const {data: customer} = useCurrentCustomer()
+    const {reach5Client, reach5SessionInfo, loading, error} = useReachFive()
 
     const handleLogout = async () => {
-        const client = await getReachFiveClientUI()
-        // need to logout from reach5
-        await client.core.logout()
+        await reach5Client.core.logout()
         // need to logout from slas and sfra too
         // here it seems to make some issue because of reach_five token refresh ???
         await logout.mutateAsync()
@@ -32,18 +31,12 @@ export const Reach5Auth = () => {
     useEffect(() => {
         try {
             const getSdk = async () => {
-                const client = await getReachFiveClientUI()
-                if (!client?.core?.getSessionInfo) {
-                    return
-                }
-                const info = await client.core.getSessionInfo()
-                if (info?.isAuthenticated) {
+                if (reach5SessionInfo?.isAuthenticated) {
                     setAuthenticated(true)
                     setUserData(info)
                 } else {
                     console.log('Show Auth...')
-                    const socialLogin = (async () =>
-                        await client.showAuth({
+                    await reach5Client.showAuth({
                             container: 'auth-login-container',
                             auth: {
                                 redirectUri: 'http://localhost:3000/silent-auth',
@@ -51,17 +44,17 @@ export const Reach5Auth = () => {
                             allowLogin: true,
                             allowWebAuthnSignup: true,
                             allowWebAuthnLogin: true
-                        }))()
+                    })
                 }
             }
-            if (onClient) {
+            if (onClient && loading && reach5Client) {
                 getSdk()
             }
             /** */
         } catch (error) {
             console.error(error)
         }
-    }, [onClient])
+    }, [reach5Client])
 
     let userInfo = 'userData not found'
     let customerInfo = 'customer not found'

@@ -8,7 +8,6 @@ import useAuthContext from '@salesforce/commerce-sdk-react/hooks/useAuthContext'
 import {useEffect, useState} from 'react'
 import {useSearchParams} from '@salesforce/retail-react-app/app/hooks/use-search-params'
 import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
-import {getReachFiveClientUI} from './useReachFive'
 import {AuthHelpers, useAuthHelper} from '@salesforce/commerce-sdk-react'
 import Cookies from 'js-cookie'
 import {DWSID_COOKIE_NAME} from '@salesforce/commerce-sdk-react/constant'
@@ -20,6 +19,7 @@ import {
     checkExternalCustomer,
     getCustomerInfo,
     getShopperInfo,
+    getAccessToken,
     getAuthIntrospect,
     getReach5CustomerInfo,
     getTrustedAgentToken,
@@ -29,6 +29,7 @@ import {
     getOCAPIAccess,
     getOCAPIAccessSess
 } from './callHelpers'
+import { useReachFive } from './use-reach-five'
 
 const SLAS_CALLBACK_ENDPOINT = '/idp-callback'
 
@@ -47,10 +48,11 @@ const useIdpCallback = ({labels}) => {
     const [tokenReady, setTokenReady] = useState(false)
     const auth = useAuthContext()
     const siteId = getConfig().app.commerceAPI.parameters.siteId
+    const {reach5Client, reach5SessionInfo, loading, error} = useReachFive()
 
     useEffect(() => {
         // If there is an error in the URL, we don't need to do anything else
-        if (authenticationError) {
+        if (authenticationError || error || !reach5Client || loading) {
             return
         }
 
@@ -63,13 +65,9 @@ const useIdpCallback = ({labels}) => {
          * A login method to handle the callback from an IDP.
          * */
         const getIdpToken = async () => {
-            const client = await getReachFiveClientUI()
-            if (!client?.core?.getSessionInfo) {
-                return
-            }
-            const emailFromSess = await client?.core?.getSessionInfo().email
-            const dwsid = Cookies.get(DWSID_COOKIE_NAME)
-            const cookie_usid = Cookies.get('usid_RefArch')
+            const emailFromSess = reach5SessionInfo?.email
+            const dwsid = Cookies.get(DWSID_COOKIE_NAME) || localStorage.getItem(`customer_id_${siteId}`)
+            const cookie_usid = Cookies.get(`usid_${siteId}`)
             const {code, usid = cookie_usid, state} = params;
             let decodedState = {};
             if (state) {
@@ -90,14 +88,26 @@ const useIdpCallback = ({labels}) => {
             if (usid) {
                 callParams.usid = usid;
             }
+            tokens = await getAccessToken({
+                ...callParams,
+                grant_type: 'client_credentials', // session_bridge for public client
+                login_id: emailFromSess,
+                dwsid // we need to provide dwsid for existing user
+            })
+            debugger;
             if (emailFromSess && dwsid) {
+                // this seems to not work
+                console.log('session_bridge for email and dwsid:', emailFromSess, dwsid);
+                /*
                 tokens = await getSessionBridge({
                     ...callParams,
                     grant_type: 'client_credentials', // session_bridge for public client
                     login_id: emailFromSess,
                     dwsid // we need to provide dwsid for existing user
                 })
+                /** */
             } else {
+                console.log('access token with code pkce');
                 tokens = await auth.client.getAccessToken({
                     body: {
                         ...callParams,
@@ -105,33 +115,34 @@ const useIdpCallback = ({labels}) => {
                     }
                 })
             }
+            debugger;
             if (tokens.error) {
                 setAuthenticationError(tokens.error_description)
             } else {
                 setTokenResponse(tokens)
-                console.log('SLAS tokens:', tokens)
-                const introspect = await getAuthIntrospect(tokens.access_token)
-                const userCall = await getCustomerInfo(tokens.access_token)
-                let customerId = userCall.customer_id || tokens.customer_id
-                const shopper = await getShopperInfo(tokens.access_token, customerId)
-                console.log('userCall:', {userCall, introspect})
+                const shopper = await getShopperInfo(tokens.access_token, tokens.customer_id)
+                console.log('shopper:', shopper)
                 if (shopper?.authType === 'registered') {
                     localStorage.setItem('token', tokens.access_token)
+                    localStorage.setItem('refresh_token_registered', tokens.refresh_token)
                     localStorage.setItem(`refresh_token_${siteId}`, tokens.refresh_token)
                     console.log('login ok')
                 } else {
                     console.log('Authentication failed')
                     // logout customer
-                    await client.core.logout();
-                    setAuthenticationError('Authentication failed')
+                    // await reach5Client.core.logout();
+                    setAuthenticationError('Issue with login in - unregisterd user')
+                    window.location.href = '/finish-registration'
                     return
                 }
                 window.location.href = '/account'
             }
             setTokenReady(true)
         }
-        getIdpToken()
-    }, [])
+        if (reach5Client) {
+            getIdpToken()
+        }
+    }, [loading])
 
     return {authenticationError, tokenResponse, tokenReady}
 }

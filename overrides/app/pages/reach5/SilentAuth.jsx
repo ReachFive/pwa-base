@@ -11,16 +11,12 @@ const SilentAuth = () => {
     useEffect(() => {
         // Reach5 Auth Done, we need to make slas authorize
         const slasAuth = async () => {
-            // don't know why but it seems that loginRedirect don't work in this case
-            const url = await idpAuth.loginRedirect('reach_five_slas', 'url');
-            // make it here to avoid the issue
-            window.location.assign(url);
-            return;
+            return await idpAuth.loginRedirect('reach_five_slas');
         }
         if (onClient) {
             slasAuth()
         }
-    });
+    }, []);
 
     return (
         <Box data-testid="idp-callback" layerStyle="page">

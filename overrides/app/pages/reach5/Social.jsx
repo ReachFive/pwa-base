@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {useCurrentCustomer} from '@salesforce/retail-react-app/app/hooks/use-current-customer'
 import {useAuthHelper, AuthHelpers} from '@salesforce/commerce-sdk-react'
-import {getReachFiveClientUI} from '../../hooks/useReachFive'
+import {useReachFive} from '../../hooks/use-reach-five'
 import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 
@@ -15,11 +15,11 @@ export const ReachFiveLogin = () => {
     const config = getConfig()
     const debugMode = config.app.debugMode || false
     const {data: customer} = useCurrentCustomer()
+    const {reach5Client, reach5SessionInfo, loading, error} = useReachFive()
 
     const handleLogout = async () => {
-        const client = await getReachFiveClientUI()
         // need to logout from reach5
-        await client.core.logout()
+        await reach5Client.core.logout()
         // need to logout from slas and sfra too
         // here it seems to make some issue because of reach_five token refresh ???
         await logout.mutateAsync()
@@ -33,12 +33,7 @@ export const ReachFiveLogin = () => {
     useEffect(() => {
         try {
             const getSdk = async () => {
-                const client = await getReachFiveClientUI()
-                if (!client?.core?.getSessionInfo) {
-                    return
-                }
-                const info = await client.core.getSessionInfo()
-                if (info?.isAuthenticated) {
+                if (reach5SessionInfo?.isAuthenticated) {
                     setAuthenticated(true)
                     setUserData(info)
                 } else {
@@ -46,25 +41,23 @@ export const ReachFiveLogin = () => {
                     const state = window.btoa(JSON.stringify({
                         redirectUri: window.location.href, // you can specify the redirectUri here like some product page url
                     }));
-                    // wheras show social login, call authorize with idp
-                    const socialLogin = (async () => await client.showSocialLogin({
-                            container: 'social-login-container',
-                            auth: {
-                                redirectUri: 'http://localhost:3000/silent-auth',
-                                // redirectUri: config.redirectUri,
-                                // state
-                            }
-                        }))()
+                    await reach5Client.showSocialLogin({
+                        container: 'social-login-container',
+                        auth: {
+                            redirectUri: 'http://localhost:3000/silent-auth',
+                            state
+                        }
+                    })
                 }
             }
-            if (onClient) {
+            if (onClient && loading && reach5Client) {
                 getSdk()
             }
             /** */
         } catch (error) {
             console.error(error)
         }
-    }, [onClient])
+    }, [reach5Client])
 
     let userInfo = 'userData not found'
     let customerInfo = 'customer not found'

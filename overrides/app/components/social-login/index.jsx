@@ -7,13 +7,14 @@ import {Button, Divider, Stack, Text} from '@salesforce/retail-react-app/app/com
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
 import {useAuthHelper, AuthHelpers} from '@salesforce/commerce-sdk-react'
-import {getReachFiveClientUI} from '../../hooks/useReachFive'
+import { useReachFive } from './../../hooks/use-reach-five'
 
 const onClient = typeof window !== 'undefined'
 const SocialLogin = () => {
     const {formatMessage} = useIntl()
     const [authenticated, setAuthenticated] = useState(false)
     const [loaded, setLoaded] = useState(false)
+    const [socialLoginStatus, setSocialLoginStatus] = useState()
     const navigate = useNavigation()
     const logout = useAuthHelper(AuthHelpers.Logout)
     const config = getConfig()
@@ -22,6 +23,7 @@ const SocialLogin = () => {
     const {pathname} = useLocation()
     
     const isSilentAuth = pathname === '/silent-auth';
+    const {reach5Client, reach5SessionInfo, loading, error} = useReachFive()
     
     if (!isSocialEnabled) {
         return null
@@ -29,42 +31,40 @@ const SocialLogin = () => {
     useEffect(() => {
         try {
             const getSdk = async () => {
-                const client = await getReachFiveClientUI()
-                if (!client?.core?.getSessionInfo) {
-                    return
-                }
-                setLoaded(true)
-                const info = await client.core.getSessionInfo()
-                if (info?.isAuthenticated) {
+                if (reach5SessionInfo?.isAuthenticated) {
+                    debugger;
                     navigate('/silent-auth')
                     return null
                 } else {
                     console.log('Show social login...')
                     const state = window.btoa(
                         JSON.stringify({
-                            redirectUri: window.location.href // you can specify the redirectUri here like some product page url
+                            // redirectUri: window.location.href // you can specify the redirectUri here like some product page url
+                            redirectUri: 'http://localhost:3000/toto',
                         })
                     )
-                    // wheras show social login, call authorize with idp
-                    const socialLogin = (async () =>
-                        await client.showSocialLogin({
+                    if (!socialLoginStatus) {
+                        // wheras show social login, call authorize with idp
+                        await reach5Client.showSocialLogin({
                             container: 'social-login-modal-container',
                             auth: {
-                                redirectUri: 'http://localhost:3000/silent-auth'
-                                // redirectUri: config.redirectUri,
-                                // state
+                                redirectUri: 'http://localhost:3000/silent-auth',
+                                state
                             }
-                        }))()
+                        })
+                        setSocialLoginStatus('loaded')
+                        setLoaded(true)
+                    }
                 }
             }
-            if (onClient && isSocialEnabled && !authenticated && !loaded && !isSilentAuth) {
+            if (onClient && isSocialEnabled && !authenticated && !isSilentAuth && reach5Client) {
                 getSdk()
             }
             /** */
         } catch (error) {
             console.error(error)
         }
-    }, [])
+    }, [reach5Client])
 
     return (
         <Stack spacing={8} paddingLeft={4} paddingRight={4}>

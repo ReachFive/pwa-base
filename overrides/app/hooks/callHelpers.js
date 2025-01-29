@@ -190,6 +190,36 @@ export const getTrustedAgentToken = async (auth, code, usid) => {
     ).json()
 }
 
+export const getAccessToken = async ({code, usid, redirect_uri}) => {
+    const params = getConfig().app.commerceAPI.parameters;
+    return await (
+        await fetch(
+            prepareUrl({
+                subject: 'shopper/auth',
+                path: 'oauth2/token'
+            }),
+            {
+                method: 'POST',
+                headers: {
+                    // Authorization: `Basic ${b64}`, // seems to need basic auth from
+                    // _sfdc_client_auth: `Basic ${b64}`,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    code,
+                    usid,
+                    redirect_uri,
+                    grant_type: 'authorization_code_pkce',
+                    code_verifier: localStorage.getItem('codeVerifier') || '',
+                    client_id: params.clientId,
+                    client_secret: params.clientSecret,
+                    channel_id: params.siteId
+                })
+            }
+        )
+    ).json()
+}
+
 export const getSessionBridge = async (params) => {
     const b64 = getB64();
     return await (
