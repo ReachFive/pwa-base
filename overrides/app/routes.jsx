@@ -19,7 +19,11 @@ const fallback = <Skeleton height="75vh" width="100%" />
 // Create your pages here and add them to the routes array
 // Use loadable to split code into smaller js chunks
 const Home = loadable(() => import('./pages/home'), {fallback})
-const MyNewRoute = loadable(() => import('./pages/my-new-route'))
+const IdpCallback = loadable(() => import('./pages/idp-callback'), {fallback})
+const Account = loadable(() => import('./pages/account'), {fallback})
+const R5Auth = loadable(() => import('./pages/reach5/Auth'), {fallback})
+const R5Social = loadable(() => import('./pages/reach5/Social'), {fallback})
+const SilentAuth = loadable(() => import('./pages/reach5/SilentAuth'), {fallback})
 
 const routes = [
     {
@@ -28,8 +32,29 @@ const routes = [
         exact: true
     },
     {
-        path: '/my-new-route',
-        component: MyNewRoute
+        path: '/account',
+        component: Account
+    },
+    {
+        path: '/idp-callback',
+        component: IdpCallback
+    },
+    {
+        // this is kind of hosted page for login
+        path: '/reach-five/login',
+        component: R5Auth
+    },
+    {
+        path: '/r5/auth',
+        component: R5Auth
+    },
+    {
+        path: '/r5/social',
+        component: R5Social
+    },
+    {
+        path: '/silent-auth',
+        component: SilentAuth
     },
     ..._routes
 ]

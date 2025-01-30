@@ -1,2 +1,10 @@
 node_modules
 .env.local
+.DS_Store
+**/compiled/**
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
