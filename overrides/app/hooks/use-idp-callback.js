@@ -8,28 +8,37 @@ import useAuthContext from '@salesforce/commerce-sdk-react/hooks/useAuthContext'
 import {useEffect, useState} from 'react'
 import {useSearchParams} from '@salesforce/retail-react-app/app/hooks/use-search-params'
 import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
-import {AuthHelpers, useAuthHelper} from '@salesforce/commerce-sdk-react'
+import {
+    // useAccessToken,
+    // useCustomerId,
+    useCommerceApi,
+    useShopperLoginMutation,
+    ShopperLoginMutations,
+    useAuthHelper,
+    AuthHelpers,
+    useConfig
+} from '@salesforce/commerce-sdk-react'
 import Cookies from 'js-cookie'
 import {DWSID_COOKIE_NAME} from '@salesforce/commerce-sdk-react/constant'
-import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
+// import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 
 import {
-    fastCreateCustomerWithExternal,
-    updateCustomerWithExternal,
-    checkExternalCustomer,
-    getCustomerInfo,
-    getShopperInfo,
-    getAccessToken,
-    getAuthIntrospect,
-    getReach5CustomerInfo,
-    getTrustedAgentToken,
-    getSessionBridge,
-    logUserIn,
-    getOCAPICookieWithSession,
-    getOCAPIAccess,
-    getOCAPIAccessSess
+    // fastCreateCustomerWithExternal,
+    // updateCustomerWithExternal,
+    // checkExternalCustomer,
+    // getB64,
+    getShopperInfo
+    // getAccessToken,
+    // getAuthIntrospect,
+    // getReach5CustomerInfo,
+    // getTrustedAgentToken,
+    // getSessionBridge,
+    // logUserIn,
+    // getOCAPICookieWithSession,
+    // getOCAPIAccess,
+    // getOCAPIAccessSess
 } from './callHelpers'
-import { useReachFive } from './use-reach-five'
+import {useReachFive} from './use-reach-five'
 
 const SLAS_CALLBACK_ENDPOINT = '/idp-callback'
 
@@ -43,12 +52,20 @@ const SLAS_CALLBACK_ENDPOINT = '/idp-callback'
  */
 const useIdpCallback = ({labels}) => {
     const [params] = useSearchParams()
-    const [authenticationError, setAuthenticationError] = useState(params.error_description)
-    const [tokenResponse, setTokenResponse] = useState({})
-    const [tokenReady, setTokenReady] = useState(false)
     const auth = useAuthContext()
-    const siteId = getConfig().app.commerceAPI.parameters.siteId
+    const {clientId, organizationId, siteId} = useConfig()
+    // const siteId = getConfig().app.commerceAPI.parameters.siteId
     const {reach5Client, reach5SessionInfo, loading, error} = useReachFive()
+    // const {token} = useAccessToken()
+    // const customerId = useCustomerId()
+    const commerceAPi = useCommerceApi()
+    const getAccessToken = useShopperLoginMutation(ShopperLoginMutations.GetAccessToken)
+    // const getSessionBridgeAccessToken = useShopperLoginMutation(ShopperLoginMutations.GetSessionBridgeAccessToken)
+    const logout = useAuthHelper(AuthHelpers.Logout)
+
+    const [tokenResponse, setTokenResponse] = useState({})
+    const [authenticationError, setAuthenticationError] = useState(params.error_description)
+    const [tokenReady, setTokenReady] = useState(false)
 
     useEffect(() => {
         // If there is an error in the URL, we don't need to do anything else
@@ -56,8 +73,12 @@ const useIdpCallback = ({labels}) => {
             return
         }
 
+        const cookie_usid = Cookies.get(`usid_${siteId}`)
+
+        const {code, usid = cookie_usid, state} = params
+
         // We need to make sure we have code in the URL
-        if (!params.code) {
+        if (!code) {
             setAuthenticationError(labels?.missingParameters)
             return
         }
@@ -66,63 +87,120 @@ const useIdpCallback = ({labels}) => {
          * */
         const getIdpToken = async () => {
             const emailFromSess = reach5SessionInfo?.email
-            const dwsid = Cookies.get(DWSID_COOKIE_NAME) || localStorage.getItem(`customer_id_${siteId}`)
-            const cookie_usid = Cookies.get(`usid_${siteId}`)
-            const {code, usid = cookie_usid, state} = params;
-            let decodedState = {};
+            const dwsid =
+                Cookies.get(DWSID_COOKIE_NAME) ??
+                Cookies.get('dwsgst') ??
+                localStorage.getItem(`customer_id_${siteId}`)
+
             if (state) {
                 try {
-                    decodedState = JSON.parse(window.atob(state));
+                    console.log('decodedState = ', JSON.parse(window.atob(state)))
                 } catch (e) {
-                    console.log('error decoding state:', e);
+                    console.log('error decoding state:', e)
                 }
             }
-            let tokens
+
             let callParams = {
                 code,
                 redirect_uri: `${getAppOrigin()}${SLAS_CALLBACK_ENDPOINT}`,
-                client_id: auth.client.clientConfig.parameters.clientId,
-                channel_id: auth.client.clientConfig.parameters.siteId,
+                client_id: clientId,
+                channel_id: siteId,
                 code_verifier: localStorage.getItem('codeVerifier')
-            };
+            }
             if (usid) {
-                callParams.usid = usid;
+                callParams.usid = usid
             }
-            tokens = await getAccessToken({
-                ...callParams,
-                grant_type: 'client_credentials', // session_bridge for public client
-                login_id: emailFromSess,
-                dwsid // we need to provide dwsid for existing user
-            })
-            debugger;
-            if (emailFromSess && dwsid) {
-                // this seems to not work
-                console.log('session_bridge for email and dwsid:', emailFromSess, dwsid);
-                /*
-                tokens = await getSessionBridge({
+
+            // tokens = await getAccessToken({
+            //     ...callParams,
+            //     grant_type: 'client_credentials', // session_bridge for public client
+            //     login_id: emailFromSess,
+            //     dwsid // we need to provide dwsid for existing user
+            // })
+            console.log('session_bridge for email and dwsid:', emailFromSess, dwsid)
+            // debugger;
+            // if (emailFromSess && dwsid) {
+            //     // this seems to not work
+            //     tokens = await getSessionBridge({
+            //         ...callParams,
+            //         grant_type: 'client_credentials', // session_bridge for public client
+            //         login_id: emailFromSess,
+            //         dwsid // we need to provide dwsid for existing user
+            //     })
+            // } else {
+            console.log('access token with code pkce')
+            // tokens = await auth.client.getAccessToken({
+            //     body: {
+            //         ...callParams,
+            //         grant_type: 'authorization_code_pkce'
+            //     }
+            // })
+            // // }
+            // console.log(tokens)
+            const tokens = await getAccessToken.mutateAsync({
+                parameters: {
+                    organizationId: organizationId
+                },
+                body: {
                     ...callParams,
-                    grant_type: 'client_credentials', // session_bridge for public client
-                    login_id: emailFromSess,
-                    dwsid // we need to provide dwsid for existing user
-                })
-                /** */
-            } else {
-                console.log('access token with code pkce');
-                tokens = await auth.client.getAccessToken({
-                    body: {
-                        ...callParams,
-                        grant_type: 'authorization_code_pkce'
-                    }
-                })
-            }
-            debugger;
+                    grant_type: 'authorization_code_pkce'
+                }
+            })
+            console.table(tokens)
+            const parsedToken = auth.parseSlasJWT(tokens.access_token)
+            console.table(parsedToken)
+
+            // await fetch(
+            //     `${getAppOrigin()}/mobify/proxy/ocapi/s/${siteId}/dw/shop/v24_5/sessions`,
+            //     {
+            //         method: 'POST',
+            //         headers: {
+            //             'x-dw-client-id': clientId,
+            //             Authorization: `Bearer ${token}`
+            //         }
+            //     }
+            // )
+
+            // const sessionBridge = await getSessionBridgeAccessToken.mutateAsync({
+            //     parameters: {
+            //         organizationId: organizationId
+            //     },
+            //     body: {
+            //         client_id: clientId,
+            //         grant_type: 'client_credentials',
+            //         login_id: parsedToken.loginId, // emailFromSess, // 'guest',
+            //         usid: parsedToken.usid,
+            //         channel_id: siteId,
+            //         // dwsgst: token
+            //         dwsid: dwsid
+            //     },
+            //     headers: {
+            //         Authorization: `Basic ${getB64()}`
+            //     }
+            // })
+            // console.log({sessionBridge})
+
             if (tokens.error) {
                 setAuthenticationError(tokens.error_description)
             } else {
                 setTokenResponse(tokens)
-                const shopper = await getShopperInfo(tokens.access_token, tokens.customer_id)
-                console.log('shopper:', shopper)
-                if (shopper?.authType === 'registered') {
+
+                const customer = await commerceAPi.shopperCustomers.getCustomer({
+                    parameters: {
+                        customerId: parsedToken.customerId,
+                        organizationId: organizationId,
+                        siteId: siteId
+                    },
+                    headers: {
+                        Authorization: `Bearer ${tokens.access_token}`
+                    }
+                })
+                console.table(customer)
+
+                const shopperInfo = await getShopperInfo(tokens.access_token, tokens.customer_id)
+                console.table(shopperInfo)
+
+                if (shopperInfo?.authType === 'registered') {
                     localStorage.setItem('token', tokens.access_token)
                     localStorage.setItem('refresh_token_registered', tokens.refresh_token)
                     localStorage.setItem(`refresh_token_${siteId}`, tokens.refresh_token)
@@ -130,7 +208,12 @@ const useIdpCallback = ({labels}) => {
                 } else {
                     console.log('Authentication failed')
                     // logout customer
-                    // await reach5Client.core.logout();
+                    await logout.mutateAsync()
+                    await reach5Client.core.logout()
+                    localStorage.removeItem('token')
+                    localStorage.removeItem('refresh_token')
+                    localStorage.removeItem(`customer_type_${siteId}`)
+                    setTokenResponse({})
                     setAuthenticationError('Issue with login in - unregisterd user')
                     window.location.href = '/finish-registration'
                     return

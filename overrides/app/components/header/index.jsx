@@ -27,7 +27,12 @@ import {
     useDisclosure,
     useMediaQuery
 } from '@salesforce/retail-react-app/app/components/shared/ui'
-import {AuthHelpers, useAuthHelper, useCustomerType} from '@salesforce/commerce-sdk-react'
+import {
+    AuthHelpers,
+    useAuthHelper,
+    useConfig,
+    useCustomerType
+} from '@salesforce/commerce-sdk-react'
 
 import {useCurrentBasket} from '@salesforce/retail-react-app/app/hooks/use-current-basket'
 
@@ -51,9 +56,8 @@ import LoadingSpinner from '@salesforce/retail-react-app/app/components/loading-
 import {HideOnDesktop, HideOnMobile} from '@salesforce/retail-react-app/app/components/responsive'
 import {isHydrated, noop} from '@salesforce/retail-react-app/app/utils/utils'
 import {STORE_LOCATOR_IS_ENABLED} from '@salesforce/retail-react-app/app/constants'
-import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 
-import { getReachFiveClient } from '../../hooks/useReachFive'
+import {getReachFiveClient} from '../../hooks/useReachFive'
 
 const IconButtonWithRegistration = withRegistration(IconButton)
 
@@ -118,6 +122,7 @@ const Header = ({
         derivedData: {totalItems},
         data: basket
     } = useCurrentBasket()
+    const {siteId} = useConfig()
     const {isRegistered} = useCustomerType()
     const logout = useAuthHelper(AuthHelpers.Logout)
     const navigate = useNavigation()
@@ -129,20 +134,18 @@ const Header = ({
         onOpen: onAccountMenuOpen
     } = useDisclosure()
     const [isDesktop] = useMediaQuery('(min-width: 992px)')
-   
+
     const [showLoading, setShowLoading] = useState(false)
     // tracking if users enter the popover Content,
     // so we can decide whether to close the menu when users leave account icons
     const hasEnterPopoverContent = useRef()
-    
-    const siteId = getConfig().app.commerceAPI.parameters.siteId
 
     const styles = useMultiStyleConfig('Header')
 
     const onSignoutClick = async () => {
         setShowLoading(true)
-        const client = await getReachFiveClient();
-        await client.logout();
+        const client = await getReachFiveClient()
+        await client.logout()
         await logout.mutateAsync()
         if (localStorage.getItem('token')) {
             localStorage.removeItem('token')

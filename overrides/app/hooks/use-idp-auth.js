@@ -24,7 +24,7 @@ export default function useIDPAuth() {
         const codeChallenge = await generateCodeChallenge(codeVerifier)
 
         localStorage.setItem('codeVerifier', codeVerifier)
-        console.warn('setCodeVerifier' ,codeVerifier);
+        console.warn('setCodeVerifier', codeVerifier)
 
         console.log('Redirecting to IDP login page...')
         return redirectToAuthURL(

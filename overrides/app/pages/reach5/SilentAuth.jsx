@@ -1,17 +1,40 @@
 import React, {useEffect} from 'react'
 import {FormattedMessage, useIntl} from 'react-intl'
 import {Box, Text, VStack, Spinner} from '@salesforce/retail-react-app/app/components/shared/ui'
+// import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
 import Seo from '@salesforce/retail-react-app/app/components/seo'
+// import {ShopperLoginMutations, useConfig, useShopperLoginMutation} from '@salesforce/commerce-sdk-react'
+
 import useIDPAuth from '../../hooks/use-idp-auth'
+// import {createCodeVerifier, generateCodeChallenge} from '../../utils/idp-utils'
 
 const onClient = typeof window !== 'undefined'
 const SilentAuth = () => {
     const {formatMessage} = useIntl()
     const idpAuth = useIDPAuth();
+    // const {clientId, organizationId, siteId} = useConfig()
+    // const authorizeCustomer = useShopperLoginMutation(ShopperLoginMutations.AuthorizeCustomer)
+
     useEffect(() => {
         // Reach5 Auth Done, we need to make slas authorize
         const slasAuth = async () => {
             return await idpAuth.loginRedirect('reach_five_slas');
+            // const codeVerifier = createCodeVerifier()
+            // const codeChallenge = await generateCodeChallenge(codeVerifier)
+
+            // return await authorizeCustomer.mutateAsync({
+            //     parameters: {
+            //         redirect_uri: `${getAppOrigin()}/idp-callback`,
+            //         response_type: 'code',
+            //         client_id: clientId,
+            //         scope: 'openid offline_access email',
+            //         hint: 'reach_five_slas',
+            //         channel_id: siteId,
+            //         code_challenge: codeChallenge,
+            //         ui_locales: 'fr-FR fr en',
+            //         organizationId: organizationId
+            //     }
+            // })
         }
         if (onClient) {
             slasAuth()

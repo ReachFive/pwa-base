@@ -1,12 +1,11 @@
 {
   "name": "client",
-  "hash": "737c99de38ba2b1e2f30",
+  "hash": "dcfed4eb394f0d53985d",
   "publicPath": "",
-  "outputPath": "/Users/flo/Documents/GitHub/pwa-base/build",
+  "outputPath": "/Users/quentin/ReachFive/pwa-base/build",
   "assetsByChunkName": {
     "main": [
-      "main.js",
-      "main.f3af578b9f4e3b067780.hot-update.js"
+      "main.js"
     ],
     "pages-home": [
       "pages-home.js"
@@ -97,7 +96,7 @@
     {
       "type": "asset",
       "name": "main.js",
-      "size": 1231514,
+      "size": 1234402,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -352,6 +351,31 @@
     },
     {
       "type": "asset",
+      "name": "pages-idp-callback.js",
+      "size": 49351,
+      "emitted": false,
+      "comparedForEmit": false,
+      "cached": true,
+      "info": {
+        "javascriptModule": false,
+        "related": {
+          "sourceMap": "pages-idp-callback.js.map"
+        }
+      },
+      "chunkNames": [
+        "pages-idp-callback"
+      ],
+      "chunkIdHints": [],
+      "auxiliaryChunkNames": [],
+      "auxiliaryChunkIdHints": [],
+      "filteredRelated": 1,
+      "chunks": [
+        "pages-idp-callback"
+      ],
+      "auxiliaryChunks": []
+    },
+    {
+      "type": "asset",
       "name": "vendors-node_modules_salesforce_retail-react-app_app_components_item-variant_item-attributes_-366c8a.js",
       "size": 47418,
       "emitted": false,
@@ -397,31 +421,6 @@
       "filteredRelated": 1,
       "chunks": [
         "vendors-node_modules_salesforce_retail-react-app_app_pages_product-detail_index_jsx"
-      ],
-      "auxiliaryChunks": []
-    },
-    {
-      "type": "asset",
-      "name": "pages-idp-callback.js",
-      "size": 44956,
-      "emitted": false,
-      "comparedForEmit": false,
-      "cached": true,
-      "info": {
-        "javascriptModule": false,
-        "related": {
-          "sourceMap": "pages-idp-callback.js.map"
-        }
-      },
-      "chunkNames": [
-        "pages-idp-callback"
-      ],
-      "chunkIdHints": [],
-      "auxiliaryChunkNames": [],
-      "auxiliaryChunkIdHints": [],
-      "filteredRelated": 1,
-      "chunks": [
-        "pages-idp-callback"
       ],
       "auxiliaryChunks": []
     },
@@ -478,7 +477,7 @@
     {
       "type": "asset",
       "name": "pages-account.js",
-      "size": 25756,
+      "size": 26436,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -503,7 +502,7 @@
     {
       "type": "asset",
       "name": "pages-reach5-SilentAuth.js",
-      "size": 24071,
+      "size": 25101,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -628,7 +627,7 @@
     {
       "type": "asset",
       "name": "pages-reach5-Social.js",
-      "size": 9460,
+      "size": 8986,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -653,7 +652,7 @@
     {
       "type": "asset",
       "name": "pages-reach5-Auth.js",
-      "size": 9159,
+      "size": 8766,
       "emitted": false,
       "comparedForEmit": false,
       "cached": true,
@@ -747,33 +746,6 @@
       "filteredRelated": 1,
       "chunks": [
         "pages-registration"
-      ],
-      "auxiliaryChunks": []
-    },
-    {
-      "type": "asset",
-      "name": "main.f3af578b9f4e3b067780.hot-update.js",
-      "size": 8078,
-      "emitted": false,
-      "comparedForEmit": false,
-      "cached": true,
-      "info": {
-        "hotModuleReplacement": true,
-        "immutable": true,
-        "fullhash": "f3af578b9f4e3b067780",
-        "related": {
-          "sourceMap": "main.f3af578b9f4e3b067780.hot-update.js.map"
-        }
-      },
-      "chunkNames": [
-        "main"
-      ],
-      "chunkIdHints": [],
-      "auxiliaryChunkNames": [],
-      "auxiliaryChunkIdHints": [],
-      "filteredRelated": 1,
-      "chunks": [
-        "main"
       ],
       "auxiliaryChunks": []
     },
@@ -874,25 +846,6 @@
         "_1242"
       ],
       "auxiliaryChunks": []
-    },
-    {
-      "type": "asset",
-      "name": "main.f3af578b9f4e3b067780.hot-update.json",
-      "size": 28,
-      "emitted": false,
-      "comparedForEmit": false,
-      "cached": true,
-      "info": {
-        "hotModuleReplacement": true,
-        "immutable": true,
-        "fullhash": "f3af578b9f4e3b067780"
-      },
-      "chunkNames": [],
-      "chunkIdHints": [],
-      "auxiliaryChunkNames": [],
-      "auxiliaryChunkIdHints": [],
-      "chunks": [],
-      "auxiliaryChunks": []
     }
   ],
   "namedChunkGroups": {
@@ -908,14 +861,11 @@
         },
         {
           "name": "main.js"
-        },
-        {
-          "name": "main.f3af578b9f4e3b067780.hot-update.js"
         }
       ],
       "filteredAssets": 0,
       "assetsSize": null,
-      "filteredAuxiliaryAssets": 3,
+      "filteredAuxiliaryAssets": 2,
       "auxiliaryAssetsSize": null,
       "children": {},
       "childAssets": {}
@@ -1336,8 +1286,7 @@
     {
       "id": "main",
       "files": [
-        "main.js",
-        "main.f3af578b9f4e3b067780.hot-update.js"
+        "main.js"
       ]
     },
     {

@@ -1,25 +1,49 @@
 import React, {useEffect, useState} from 'react'
-import PropTypes from 'prop-types'
 import {useIntl} from 'react-intl'
 import {Button, Flex, Text, Divider} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {SignoutIcon} from '@salesforce/retail-react-app/app/components/icons'
-import {useAuthHelper, AuthHelpers} from '@salesforce/commerce-sdk-react'
+import {
+    useAuthHelper,
+    useConfig,
+    useShopperLoginMutation,
+    ShopperLoginMutations,
+    AuthHelpers
+} from '@salesforce/commerce-sdk-react'
 import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
-import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
-import { getReachFiveClient } from '../../hooks/useReachFive'
+import {getReachFiveClient} from '../../hooks/useReachFive'
 
 const LogoutButton = () => {
     const {formatMessage} = useIntl()
+    const {clientId, organizationId, siteId} = useConfig()
     const logout = useAuthHelper(AuthHelpers.Logout)
+    const logoutCustomer = useShopperLoginMutation(ShopperLoginMutations.LogoutCustomer)
     const [showLoading, setShowLoading] = useState(false)
     const navigate = useNavigation()
-    const siteId = getConfig().app.commerceAPI.parameters.siteId
-    
+
     const onSignoutClick = async () => {
         setShowLoading(true)
         const client = await getReachFiveClient();
         await client.logout();
-        await logout.mutateAsync()
+        await logout.mutateAsync({
+            parameters: {
+                organizationId: organizationId,
+                client_id: clientId,
+                channel_id: siteId,
+                refresh_token:
+                    localStorage.getItem(`refresh_token_${siteId}`) ??
+                    localStorage.getItem('refresh_token')
+            }
+        })
+        await logoutCustomer.mutateAsync({
+            parameters: {
+                organizationId: organizationId,
+                client_id: clientId,
+                channel_id: siteId,
+                refresh_token:
+                    localStorage.getItem(`refresh_token_${siteId}`) ??
+                    localStorage.getItem('refresh_token')
+            }
+        })
         if (localStorage.getItem('token')) {
             localStorage.removeItem('token')
             localStorage.removeItem('refresh_token')

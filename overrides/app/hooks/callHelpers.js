@@ -1,7 +1,7 @@
 import {prepareUrl, prepareOtherUrl} from './urlHelpers'
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 
-const getB64 = () => {
+export const getB64 = () => {
     const params = getConfig().app.commerceAPI.parameters;
     const b64 = window.btoa(`${params.clientId}:${params.clientSecret}`)
     return b64;
