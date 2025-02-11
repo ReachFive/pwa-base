@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react'
 import {useCurrentCustomer} from '@salesforce/retail-react-app/app/hooks/use-current-customer'
-import {useAuthHelper, AuthHelpers} from '@salesforce/commerce-sdk-react'
-import {useReachFive} from '../../hooks/use-reach-five'
+import {useReachFive} from '../../components/reach5/ReachFiveContext'
 import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
+import {useCustomLogout} from '../../components/reach5/Logout'
 
 const onClient = typeof window !== 'undefined'
 
@@ -11,39 +11,27 @@ export const Reach5Auth = () => {
     const [authenticated, setAuthenticated] = useState(false)
     const [userData, setUserData] = useState(null)
     const navigate = useNavigation()
-    const logout = useAuthHelper(AuthHelpers.Logout)
     const debugMode = getConfig().app.debugMode || false
     const {data: customer} = useCurrentCustomer()
-    const {reach5Client, reach5SessionInfo, loading, error} = useReachFive()
-
-    const handleLogout = async () => {
-        await reach5Client.core.logout()
-        // need to logout from slas and sfra too
-        // here it seems to make some issue because of reach_five token refresh ???
-        await logout.mutateAsync()
-        console.log('logout from reach5 as sfra login not fully recognize...')
-        // remove token from local storage
-        localStorage.removeItem('reach5-slas-token')
-        setAuthenticated(false)
-        navigate('/')
-    }
+    const {reach5Client, reach5SessionInfo, loading} = useReachFive()
+    const handleLogout = useCustomLogout()
 
     useEffect(() => {
         try {
             const getSdk = async () => {
                 if (reach5SessionInfo?.isAuthenticated) {
                     setAuthenticated(true)
-                    setUserData(info)
+                    setUserData(reach5SessionInfo)
                 } else {
                     console.log('Show Auth...')
                     await reach5Client.showAuth({
-                            container: 'auth-login-container',
-                            auth: {
-                                redirectUri: 'http://localhost:3000/silent-auth',
-                            },
-                            allowLogin: true,
-                            allowWebAuthnSignup: true,
-                            allowWebAuthnLogin: true
+                        container: 'auth-login-container',
+                        auth: {
+                            redirectUri: 'http://localhost:3000/silent-auth'
+                        },
+                        allowLogin: true,
+                        allowWebAuthnSignup: true,
+                        allowWebAuthnLogin: true
                     })
                 }
             }
@@ -67,7 +55,7 @@ export const Reach5Auth = () => {
     if (authenticated && !debugMode) {
         // redirect to slas auth
         navigate('/silent-auth')
-        return;
+        return
     }
 
     return (

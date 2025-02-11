@@ -6,7 +6,6 @@
  */
 import React, {useEffect} from 'react'
 import {useIntl, FormattedMessage} from 'react-intl'
-import {useLocation} from 'react-router-dom'
 
 // Components
 import {Box, Button, Stack, Link} from '@salesforce/retail-react-app/app/components/shared/ui'
@@ -25,17 +24,13 @@ import {
     CUSTOM_HOME_TITLE,
     HOME_SHOP_PRODUCTS_CATEGORY_ID,
     HOME_SHOP_PRODUCTS_LIMIT,
-    MAX_CACHE_AGE,
-    STALE_WHILE_REVALIDATE
+    MAX_CACHE_AGE
 } from '../../constants'
 
 import {useServerContext} from '@salesforce/pwa-kit-react-sdk/ssr/universal/hooks'
 import {useProductSearch} from '@salesforce/commerce-sdk-react'
 
-const reach5Links = [
-    '/r5/social',
-    '/r5/auth'
-];
+const reach5Links = ['/r5/social', '/r5/auth']
 
 /**
  * This is the home page for Retail React App.
@@ -45,7 +40,6 @@ const reach5Links = [
  */
 const Home = () => {
     const intl = useIntl()
-    const {pathname} = useLocation()
     // useServerContext is a special hook introduced in v3 PWA Kit SDK.
     // It replaces the legacy `getProps` and provide a react hook interface for SSR.
     // it returns the request and response objects on the server side,
@@ -108,7 +102,7 @@ const Home = () => {
             />
 
             {reach5Links && (
-                 <Stack spacing={{base: 4, sm: 6}} direction={{base: 'column', sm: 'row'}}>
+                <Stack spacing={{base: 4, sm: 6}} direction={{base: 'column', sm: 'row'}}>
                     {reach5Links.map((r5link, i) => (
                         <Button
                             key={i}

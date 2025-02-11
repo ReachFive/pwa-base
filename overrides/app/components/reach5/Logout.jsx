@@ -1,39 +1,71 @@
-import React, {useEffect, useState} from 'react'
-import PropTypes from 'prop-types'
+import React from 'react'
 import {useIntl} from 'react-intl'
 import {Button, Flex, Text, Divider} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {SignoutIcon} from '@salesforce/retail-react-app/app/components/icons'
-import {useAuthHelper, AuthHelpers} from '@salesforce/commerce-sdk-react'
+import {
+    useConfig,
+    useShopperLoginMutation,
+    ShopperLoginMutations
+} from '@salesforce/commerce-sdk-react'
 import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
-import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
-import { getReachFiveClient } from '../../hooks/useReachFive'
+import {useReachFive} from './ReachFiveContext'
 
-const LogoutButton = () => {
-    const {formatMessage} = useIntl()
-    const logout = useAuthHelper(AuthHelpers.Logout)
-    const [showLoading, setShowLoading] = useState(false)
+import Cookies from 'js-cookie'
+import {DWSID_COOKIE_NAME} from '@salesforce/commerce-sdk-react/constant'
+
+export const useCustomLogout = () => {
+    const logoutCustomer = useShopperLoginMutation(ShopperLoginMutations.LogoutCustomer)
+
+    const {clientId, organizationId, siteId} = useConfig()
     const navigate = useNavigation()
-    const siteId = getConfig().app.commerceAPI.parameters.siteId
-    
-    const onSignoutClick = async () => {
-        setShowLoading(true)
-        const client = await getReachFiveClient();
-        await client.logout();
-        await logout.mutateAsync()
-        if (localStorage.getItem('token')) {
-            localStorage.removeItem('token')
-            localStorage.removeItem('refresh_token')
-            localStorage.removeItem(`customer_type_${siteId}`)
+    const {reach5Client} = useReachFive()
+
+    return async () => {
+        const refreshToken =
+            localStorage.getItem(`refresh_token_${siteId}`) ?? localStorage.getItem('refresh_token')
+        try {
+            await reach5Client.core.logout()
+            await logoutCustomer.mutateAsync({
+                parameters: {
+                    organizationId: organizationId,
+                    client_id: clientId,
+                    channel_id: siteId,
+                    refresh_token: refreshToken
+                }
+            })
+            // await logout.mutateAsync();
+        } catch (error) {
+            console.error(error)
+        } finally {
+            const commonToRemove = [
+                'token',
+                'refresh_token',
+                `refresh_token_${siteId}`,
+                `access_token_${siteId}`,
+                `customer_id_${siteId}`,
+                `customer_type_${siteId}`
+            ]
+            ;[...commonToRemove, DWSID_COOKIE_NAME, `usid_${siteId}`, `cc-nx-g_${siteId}`].forEach(
+                (cookieName) => Cookies.remove(cookieName)
+            )
+            commonToRemove.forEach((key) => localStorage.removeItem(key))
+            setTimeout(async () => {
+                navigate('/login')
+            }, 1000)
         }
-        setShowLoading(false)
     }
+}
+
+export const LogoutButton = () => {
+    const {formatMessage} = useIntl()
+    const handleLogout = useCustomLogout()
 
     return (
         <>
             <Divider colorScheme={'gray'} marginTop={3} />
             <Button
                 fontWeight="500"
-                onClick={onSignoutClick}
+                onClick={handleLogout}
                 padding={4}
                 py={0}
                 variant="unstyled"
@@ -57,5 +89,4 @@ const LogoutButton = () => {
     )
 }
 
-export {LogoutButton}
 export default LogoutButton

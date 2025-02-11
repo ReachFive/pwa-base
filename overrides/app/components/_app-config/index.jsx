@@ -28,6 +28,8 @@ import {useCorrelationId} from '@salesforce/pwa-kit-react-sdk/ssr/universal/hook
 import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools'
 
+import {ReachFiveProvider} from './../reach5/ReachFiveContext'
+
 /**
  * Use the AppConfig component to inject extra arguments into the getProps
  * methods for all Route Components in the app – typically you'd want to do this
@@ -70,7 +72,9 @@ const AppConfig = ({children, locals = {}}) => {
             enablePWAKitPrivateClient={true}
         >
             <MultiSiteProvider site={locals.site} locale={locals.locale} buildUrl={locals.buildUrl}>
-                <ChakraProvider theme={theme}>{children}</ChakraProvider>
+                <ChakraProvider theme={theme}>
+                    <ReachFiveProvider>{children}</ReachFiveProvider>
+                </ChakraProvider>
             </MultiSiteProvider>
             <ReactQueryDevtools />
         </CommerceApiProvider>

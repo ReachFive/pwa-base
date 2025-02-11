@@ -4,6 +4,10 @@ import {encode as base64encode} from 'base64-arraybuffer'
 import {prepareUrl} from './../hooks/urlHelpers'
 
 /**
+ * @see https://github.com/algolia/pwa-kit/blob/develop/pwa-kit-starter-project/app/commerce-api/pkce.js
+ */
+
+/**
  * Creates Code Verifier use for PKCE auth flow.
  *
  * Note: This function is part of the SDK, but not exposed.

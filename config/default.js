@@ -10,6 +10,7 @@ require('dotenv').config({path: '.env.local', override: true})
 const sites = require('./sites.js')
 module.exports = {
     reach5: {
+        SLAS_CALLBACK_ENDPOINT: '/idp-callback',
         REACH5_DOMAIN: process.env.REACH5_DOMAIN,
         REACH5_CLIENT_ID: process.env.REACH5_CLIENT_ID,
         REACH5_CLIENT_SECRET: process.env.REACH5_CLIENT_SECRET

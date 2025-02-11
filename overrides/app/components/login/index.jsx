@@ -44,7 +44,6 @@ const LoginForm = ({submitForm, handleForgotPasswordClick, clickCreateAccount = 
                         form={form}
                         handleForgotPasswordClick={handleForgotPasswordClick}
                     />
-
                 </Stack>
             </form>
             <SocialLogin />

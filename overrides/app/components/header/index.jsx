@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
  */
-import React, {useRef, useState} from 'react'
+import React, {useRef} from 'react'
 import PropTypes from 'prop-types'
 import {useIntl} from 'react-intl'
 import {
@@ -27,7 +27,7 @@ import {
     useDisclosure,
     useMediaQuery
 } from '@salesforce/retail-react-app/app/components/shared/ui'
-import {AuthHelpers, useAuthHelper, useCustomerType} from '@salesforce/commerce-sdk-react'
+import {useCustomerType} from '@salesforce/commerce-sdk-react'
 
 import {useCurrentBasket} from '@salesforce/retail-react-app/app/hooks/use-current-basket'
 
@@ -46,14 +46,11 @@ import {
 } from '@salesforce/retail-react-app/app/components/icons'
 
 import {navLinks, messages} from '@salesforce/retail-react-app/app/pages/account/constant'
-import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
-import LoadingSpinner from '@salesforce/retail-react-app/app/components/loading-spinner'
 import {HideOnDesktop, HideOnMobile} from '@salesforce/retail-react-app/app/components/responsive'
 import {isHydrated, noop} from '@salesforce/retail-react-app/app/utils/utils'
 import {STORE_LOCATOR_IS_ENABLED} from '@salesforce/retail-react-app/app/constants'
-import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 
-import { getReachFiveClient } from '../../hooks/useReachFive'
+import {useCustomLogout} from '../reach5/Logout'
 
 const IconButtonWithRegistration = withRegistration(IconButton)
 
@@ -119,8 +116,6 @@ const Header = ({
         data: basket
     } = useCurrentBasket()
     const {isRegistered} = useCustomerType()
-    const logout = useAuthHelper(AuthHelpers.Logout)
-    const navigate = useNavigation()
     const {
         getButtonProps: getAccountMenuButtonProps,
         getDisclosureProps: getAccountMenuDisclosureProps,
@@ -129,30 +124,13 @@ const Header = ({
         onOpen: onAccountMenuOpen
     } = useDisclosure()
     const [isDesktop] = useMediaQuery('(min-width: 992px)')
-   
-    const [showLoading, setShowLoading] = useState(false)
+    const handleLogout = useCustomLogout()
+
     // tracking if users enter the popover Content,
     // so we can decide whether to close the menu when users leave account icons
     const hasEnterPopoverContent = useRef()
-    
-    const siteId = getConfig().app.commerceAPI.parameters.siteId
 
     const styles = useMultiStyleConfig('Header')
-
-    const onSignoutClick = async () => {
-        setShowLoading(true)
-        const client = await getReachFiveClient();
-        await client.logout();
-        await logout.mutateAsync()
-        if (localStorage.getItem('token')) {
-            localStorage.removeItem('token')
-            localStorage.removeItem('refresh_token')
-            localStorage.removeItem(`access_token_${siteId}`)
-            localStorage.removeItem(`customer_type_${siteId}`)
-        }
-        setTimeout(() => navigate('/'), 500)
-        setShowLoading(false)
-    }
 
     const handleIconsMouseLeave = () => {
         // don't close the menu if users enter the popover content
@@ -172,7 +150,6 @@ const Header = ({
     return (
         <Box {...styles.container} {...props}>
             <Box {...styles.content}>
-                {showLoading && <LoadingSpinner wrapperStyles={{height: '100vh'}} />}
                 <Flex wrap="wrap" alignItems={['baseline', 'baseline', 'baseline', 'center']}>
                     <IconButton
                         aria-label={intl.formatMessage({
@@ -292,7 +269,7 @@ const Header = ({
                                         </Stack>
                                     </Box>
                                 </PopoverBody>
-                                <PopoverFooter onClick={onSignoutClick} cursor="pointer">
+                                <PopoverFooter onClick={handleLogout} cursor="pointer">
                                     <Divider colorScheme="gray" />
                                     <Button variant="unstyled" {...styles.signout}>
                                         <Flex>

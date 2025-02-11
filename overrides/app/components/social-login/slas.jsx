@@ -1,14 +1,10 @@
-import React, {useEffect} from 'react'
-import PropTypes from 'prop-types'
-import {defineMessage, useIntl} from 'react-intl'
-import {Button, Divider, Stack, Text} from '@salesforce/retail-react-app/app/components/shared/ui'
+import React from 'react'
+import {Button, Divider, Text} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {FormattedMessage} from 'react-intl'
-import logger from '@salesforce/retail-react-app/app/utils/logger-instance'
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 import useIDPAuth from '../../hooks/use-idp-auth'
 
 const SocialLogin = () => {
-    const {formatMessage} = useIntl()
     const {social = {}} = getConfig().app.login || {}
     const isSocialEnabled = !!social?.enabled
     const idps = social?.idps

@@ -1,10 +1,11 @@
-import {prepareUrl, prepareOtherUrl} from './urlHelpers'
+import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
+import {prepareUrl, prepareOtherUrl} from './urlHelpers'
 
-const getB64 = () => {
-    const params = getConfig().app.commerceAPI.parameters;
+export const getB64 = () => {
+    const params = getConfig().app.commerceAPI.parameters
     const b64 = window.btoa(`${params.clientId}:${params.clientSecret}`)
-    return b64;
+    return b64
 }
 
 export const fastCreateCustomerWithExternal = async (token, info, customerId) => {
@@ -118,7 +119,7 @@ export const getShopperInfo = async (token, customerId) =>
     ).json()
 
 export const getAuthIntrospect = async (token) => {
-    const b64 = getB64();
+    const b64 = getB64()
     return await (
         await fetch(
             prepareUrl({
@@ -159,7 +160,7 @@ export const getReach5CustomerInfo = async (token) =>
 
 export const getTrustedAgentToken = async (auth, code, usid) => {
     // this is wip if you need to use trusted agent
-    const b64 = getB64();
+    const b64 = getB64()
     return await (
         await fetch(
             prepareUrl({
@@ -180,7 +181,7 @@ export const getTrustedAgentToken = async (auth, code, usid) => {
                     code,
                     usid,
                     grant_type: 'authorization_code_pkce',
-                    redirect_uri: `${getAppOrigin()}${SLAS_CALLBACK_ENDPOINT}`,
+                    redirect_uri: `${getAppOrigin()}${getConfig().reach5.SLAS_CALLBACK_ENDPOINT}`,
                     code_verifier: localStorage.getItem('codeVerifier') || '',
                     client_id: auth.client.clientConfig.parameters.clientId,
                     channel_id: auth.client.clientConfig.parameters.siteId
@@ -191,7 +192,7 @@ export const getTrustedAgentToken = async (auth, code, usid) => {
 }
 
 export const getAccessToken = async ({code, usid, redirect_uri}) => {
-    const params = getConfig().app.commerceAPI.parameters;
+    const params = getConfig().app.commerceAPI.parameters
     return await (
         await fetch(
             prepareUrl({
@@ -221,7 +222,7 @@ export const getAccessToken = async ({code, usid, redirect_uri}) => {
 }
 
 export const getSessionBridge = async (params) => {
-    const b64 = getB64();
+    const b64 = getB64()
     return await (
         await fetch(
             prepareUrl({
@@ -261,7 +262,7 @@ export const logUserIn = async (params) =>
                 headers: {
                     // This is the Bearer token returned from Account Manager after the trusted agent on behalf of (TAOB) authorize call.
                     // x-dw-client-id as we can see in sfcc doc
-                    Authorization: `Basic ${b64}`,
+                    Authorization: `Basic ${getB64()}`,
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 body: new URLSearchParams({
@@ -272,7 +273,7 @@ export const logUserIn = async (params) =>
     ).json()
 
 export const getOCAPICookieWithSession = async (token) =>
-    await await fetch(
+    await fetch(
         prepareUrl({
             mode: {
                 proxyHost: 'ocapi'
