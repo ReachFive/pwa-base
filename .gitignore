@@ -8,3 +8,6 @@ node_modules
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# generated files
+build/**/*.*

@@ -1,22 +1,13 @@
-import {useCurrentCustomer} from '@salesforce/retail-react-app/app/hooks/use-current-customer'
-import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
-import React, {useEffect, useState} from 'react'
+import React from 'react'
 import {FormattedMessage, useIntl} from 'react-intl'
 import {Box, Text, VStack, Spinner} from '@salesforce/retail-react-app/app/components/shared/ui'
 import Seo from '@salesforce/retail-react-app/app/components/seo'
 import {AlertIcon} from '@salesforce/retail-react-app/app/components/icons'
-import {useLocation} from 'react-router-dom'
-import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 import useIdpCallback from '../../hooks/use-idp-callback'
 
 const IDPCallback = () => {
-    const navigate = useNavigation()
-    const location = useLocation()
-    const [customerChecked, setCustomerChecked] = useState(false)
-    const {data: customer} = useCurrentCustomer()
     const {formatMessage} = useIntl()
-    const {organizationId, shortCode, siteId} = getConfig().app.commerceAPI.parameters
-    const {authenticationError, tokenResponse, tokenReady} = useIdpCallback({
+    const {authenticationError} = useIdpCallback({
         labels: {
             missingParameters: formatMessage({
                 defaultMessage: 'Missing parameters',
@@ -24,7 +15,7 @@ const IDPCallback = () => {
             })
         }
     })
-    
+
     return (
         <Box data-testid="idp-callback" layerStyle="page">
             <Seo

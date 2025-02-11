@@ -1,6 +1,8 @@
 import React, {useEffect} from 'react'
 import {FormattedMessage, useIntl} from 'react-intl'
 import {Box, Text, VStack, Spinner} from '@salesforce/retail-react-app/app/components/shared/ui'
+import {useLocation} from 'react-router-dom'
+import queryString from 'query-string'
 // import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
 import Seo from '@salesforce/retail-react-app/app/components/seo'
 // import {ShopperLoginMutations, useConfig, useShopperLoginMutation} from '@salesforce/commerce-sdk-react'
@@ -8,17 +10,35 @@ import Seo from '@salesforce/retail-react-app/app/components/seo'
 import useIDPAuth from '../../hooks/use-idp-auth'
 // import {createCodeVerifier, generateCodeChallenge} from '../../utils/idp-utils'
 
+const setRedirectUri = (search) => {
+    try {
+        const {state} = queryString.parse(search)
+        if (state) {
+            const redirectUriInJson = window.atob(state)
+            const redirectUri = JSON.parse(redirectUriInJson).redirectUri
+            if (redirectUri) {
+                localStorage.setItem('redirectWithState', redirectUri)
+            }
+        }
+    } catch (e) {
+        console.error(e)
+    }
+}
+
 const onClient = typeof window !== 'undefined'
 const SilentAuth = () => {
     const {formatMessage} = useIntl()
-    const idpAuth = useIDPAuth();
+    const idpAuth = useIDPAuth()
+    const {search} = useLocation()
     // const {clientId, organizationId, siteId} = useConfig()
     // const authorizeCustomer = useShopperLoginMutation(ShopperLoginMutations.AuthorizeCustomer)
 
     useEffect(() => {
         // Reach5 Auth Done, we need to make slas authorize
         const slasAuth = async () => {
-            return await idpAuth.loginRedirect('reach_five_slas');
+            // set state to return on wanted page
+            setRedirectUri(search)
+            return await idpAuth.loginRedirect('reach_five_slas')
             // const codeVerifier = createCodeVerifier()
             // const codeChallenge = await generateCodeChallenge(codeVerifier)
 
@@ -39,7 +59,7 @@ const SilentAuth = () => {
         if (onClient) {
             slasAuth()
         }
-    }, []);
+    }, [])
 
     return (
         <Box data-testid="idp-callback" layerStyle="page">
@@ -56,10 +76,7 @@ const SilentAuth = () => {
                     <FormattedMessage defaultMessage="Authenticating" id="idp.redirect.title" />
                 </Text>
                 <Text fontSize="x-large">
-                    <FormattedMessage
-                        defaultMessage="Please hold..."
-                        id="idp.redirect.message"
-                    />
+                    <FormattedMessage defaultMessage="Please hold..." id="idp.redirect.message" />
                 </Text>
             </VStack>
         </Box>

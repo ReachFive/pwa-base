@@ -225,8 +225,7 @@ const App = (props) => {
     }, [])
 
     // Handle updating the shopper context
-    // @TODO add config to allow or not to update the shopper context
-    // useUpdateShopperContext()
+    useUpdateShopperContext()
 
     useEffect(() => {
         // Lets automatically close the mobile navigation when the
@@ -265,8 +264,7 @@ const App = (props) => {
     }
 
     const trackPage = () => {
-        // Reach5 to avoid some console error
-        // activeData.trackPage(site.id, locale.id, currency)
+        activeData.trackPage(site.id, locale.id, currency)
     }
 
     useEffect(() => {

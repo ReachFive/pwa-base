@@ -44,7 +44,7 @@ const Login = ({initialView = LOGIN_VIEW}) => {
         {enabled: !!customerId && !isServer, keepPreviousData: true}
     )
     const mergeBasket = useShopperBasketsMutation('mergeBasket')
-    const [currentView, setCurrentView] = useState(initialView)
+    const [currentView] = useState(initialView)
     const [loginType, setLoginType] = useState('password')
 
     const submitForm = async (data) => {
@@ -81,7 +81,7 @@ const Login = ({initialView = LOGIN_VIEW}) => {
                     }
                 }
             },
-            email: async (data) => {
+            email: async (_data) => {
                 // Handle resend passwordless email logic here
             }
         }[currentView](data)

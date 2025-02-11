@@ -1,12 +1,16 @@
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
 
-// 'api.commercecloud.salesforce.com';
-// subject = customer/shopper-customers
-// path = customers/external-profile
+/**
+ * Here is some sample to use the prepareUrl function:
+ * 'api.commercecloud.salesforce.com';
+ * @subject {string} subject // customer/shopper-customers
+ * @path {string} @path    // customers/external-profile
+ * @returns {string}    // https://api.commercecloud.salesforce.com/customer/shopper-customers
+ */
+//
 const domainRoot = ({proxy = true, proxyHost = 'api', isSecure = true}) => {
     const config = getConfig()
-    // const proxyPath = config.app.commerceAPI.proxyPath;
     const proxyPath = `/mobify/proxy/${proxyHost}`
     const proxyConf = config.ssrParameters.proxyConfigs.find((config) =>
         config.path.includes(proxyHost)
@@ -34,11 +38,11 @@ export const prepareCommonUrl = ({mode = {}, ...prepareUrlVars}) => {
         path,
         urlParams
     } = {...config, ...prepareUrlVars}
-    return {subject, version, domain, organizationId, shortCode, siteId, path, urlParams}
+    return {subject, version, domain, organizationId, shortCode, siteId, path, urlParams, clientId}
 }
 
 export const prepareOtherUrl = ({mode, ...prepareUrlVars}) => {
-    const {subject, domain, siteId, path, local, urlParams} = prepareCommonUrl({
+    const {subject, domain, path, urlParams} = prepareCommonUrl({
         mode,
         ...prepareUrlVars
     })
@@ -70,7 +74,7 @@ export const prepareUrl = ({mode, ...prepareUrlVars}) => {
     )
 }
 
-export const logout = async (token, info) => {
+export const logout = async (token) => {
     // wip to have full logout
     const urlToCall = prepareUrl({
         subject: 'shopper/auth',
@@ -79,7 +83,7 @@ export const logout = async (token, info) => {
             siteId: 'RefArch',
             hint: 'all-sessions',
             channel_id: 'RefArch',
-            client: '', // client_id ? 
+            client: '', // client_id ?
             refresh_token: localStorage.getItem('refresh_token')
         }
     })

@@ -1,15 +1,13 @@
 import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
 import useConfig from '@salesforce/commerce-sdk-react/hooks/useConfig'
+import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 import {createCodeVerifier, generateCodeChallenge, redirectToAuthURL} from '../utils/idp-utils'
-
-const SLAS_CALLBACK_ENDPOINT = '/idp-callback'
 
 /**
  * A hook that provides IDP auth functionality for the retail react app.
  */
 export default function useIDPAuth() {
     const {clientId, organizationId, siteId, proxy} = useConfig()
-
     /**
      * Starts the IDP login flow by redirecting the user to the IDP login page (Google, Facebook...)
      *
@@ -31,7 +29,7 @@ export default function useIDPAuth() {
             proxy,
             idp,
             codeChallenge,
-            `${getAppOrigin()}${SLAS_CALLBACK_ENDPOINT}`,
+            `${getAppOrigin()}${getConfig().reach5.SLAS_CALLBACK_ENDPOINT}`,
             clientId,
             siteId,
             organizationId,

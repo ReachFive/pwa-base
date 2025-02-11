@@ -71,7 +71,7 @@ const {handler} = runtime.createHandler(options, (app) => {
                     'connect-src': [
                         // Connect to Einstein APIs
                         ...process.env.PWA_KIT_CONNECT_SRC.split(','),
-                        'api.cquotient.com',
+                        'api.cquotient.com'
                     ]
                 }
             }

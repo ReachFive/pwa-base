@@ -19,17 +19,11 @@ import {
     Flex,
     Grid,
     Heading,
-    Stack,
-    Text,
-    Divider
+    Stack
 } from '@salesforce/retail-react-app/app/components/shared/ui'
 import Seo from '@salesforce/retail-react-app/app/components/seo'
 import Link from '@salesforce/retail-react-app/app/components/link'
-import {
-    ChevronDownIcon,
-    ChevronUpIcon,
-    SignoutIcon
-} from '@salesforce/retail-react-app/app/components/icons'
+import {ChevronDownIcon, ChevronUpIcon} from '@salesforce/retail-react-app/app/components/icons'
 import AccountDetail from '@salesforce/retail-react-app/app/pages/account/profile'
 import AccountAddresses from '@salesforce/retail-react-app/app/pages/account/addresses'
 import AccountOrders from '@salesforce/retail-react-app/app/pages/account/orders'
@@ -37,7 +31,6 @@ import AccountWishlist from '@salesforce/retail-react-app/app/pages/account/wish
 import {useLocation} from 'react-router-dom'
 
 import {messages, navLinks} from '@salesforce/retail-react-app/app/pages/account/constant'
-import LoadingSpinner from '@salesforce/retail-react-app/app/components/loading-spinner'
 import useMultiSite from '@salesforce/retail-react-app/app/hooks/use-multi-site'
 import useEinstein from '@salesforce/retail-react-app/app/hooks/use-einstein'
 import {useCurrentCustomer} from '@salesforce/retail-react-app/app/hooks/use-current-customer'
@@ -54,17 +47,13 @@ const Account = () => {
     const location = useLocation()
 
     const [mobileNavIndex, setMobileNavIndex] = useState(-1)
-    const [showLoading, setShowLoading] = useState(false)
-
-    // const einstein = useEinstein()
+    const einstein = useEinstein()
 
     const {buildUrl} = useMultiSite()
     /**************** Einstein ****************/
-    /*
     useEffect(() => {
         einstein.sendViewPage(location.pathname)
     }, [location])
-    /** */
 
     // If we have customer data and they are not registered, push to login page
     // Using Redirect allows us to store the directed page to location
@@ -137,7 +126,7 @@ const Account = () => {
                                                     </Button>
                                                 </Box>
                                             ))}
-                                            - fdr - 
+                                            - fdr -
                                             <LogoutButton justify="center" />
                                         </Stack>
                                     </Flex>
@@ -149,8 +138,6 @@ const Account = () => {
 
                 {/* large screen nav sidebar */}
                 <Stack display={{base: 'none', lg: 'flex'}} spacing={4}>
-                    {showLoading && <LoadingSpinner wrapperStyles={{height: '100vh'}} />}
-
                     <Heading as="h2" fontSize="18px">
                         <FormattedMessage
                             defaultMessage="My Account"
