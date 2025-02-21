@@ -50,6 +50,7 @@
     "last 4 ChromeAndroid versions"
   ],
   "dependencies": {
+    "@reachfive/identity-ui": "^1.32.2",
     "dotenv": "^16.4.7"
   }
 }

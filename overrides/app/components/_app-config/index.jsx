@@ -27,7 +27,8 @@ import {withReactQuery} from '@salesforce/pwa-kit-react-sdk/ssr/universal/compon
 import {useCorrelationId} from '@salesforce/pwa-kit-react-sdk/ssr/universal/hooks'
 import {getAppOrigin} from '@salesforce/pwa-kit-react-sdk/utils/url'
 import {ReactQueryDevtools} from '@tanstack/react-query-devtools'
-import {DEFAULT_DNT_STATE} from '@salesforce/retail-react-app/app/constants'
+
+import {ReachFiveProvider} from './../reach5/ReachFiveContext'
 
 /**
  * Use the AppConfig component to inject extra arguments into the getProps
@@ -47,10 +48,14 @@ const AppConfig = ({children, locals = {}}) => {
 
     const appOrigin = getAppOrigin()
 
-    const passwordlessCallback = locals.appConfig.login?.passwordless?.callbackURI
+    let token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    token = token !== undefined && token !== 'undefined' ? token : null
 
     return (
         <CommerceApiProvider
+            // This to handle auth with reach5, we need to use this token
+            fetchedToken={token}
+            silenceWarnings={true}
             shortCode={commerceApiConfig.parameters.shortCode}
             clientId={commerceApiConfig.parameters.clientId}
             organizationId={commerceApiConfig.parameters.organizationId}
@@ -60,15 +65,16 @@ const AppConfig = ({children, locals = {}}) => {
             redirectURI={`${appOrigin}/callback`}
             proxy={`${appOrigin}${commerceApiConfig.proxyPath}`}
             headers={headers}
-            defaultDnt={DEFAULT_DNT_STATE}
+            OCAPISessionsURL={`${appOrigin}${proxyBasePath}/ocapi/s/${locals.site?.id}/dw/shop/v22_8/sessions`}
             logger={createLogger({packageName: 'commerce-sdk-react'})}
-            passwordlessLoginCallbackURI={passwordlessCallback}
             // Set 'enablePWAKitPrivateClient' to true use SLAS private client login flows.
             // Make sure to also enable useSLASPrivateClient in ssr.js when enabling this setting.
             enablePWAKitPrivateClient={true}
         >
             <MultiSiteProvider site={locals.site} locale={locals.locale} buildUrl={locals.buildUrl}>
-                <ChakraProvider theme={theme}>{children}</ChakraProvider>
+                <ChakraProvider theme={theme}>
+                    <ReachFiveProvider>{children}</ReachFiveProvider>
+                </ChakraProvider>
             </MultiSiteProvider>
             <ReactQueryDevtools />
         </CommerceApiProvider>
