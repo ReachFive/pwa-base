@@ -1,17 +1,17 @@
 {
-  "name": "reachfive-sample",
+  "name": "pwa-latest",
   "version": "0.0.1",
   "license": "See license in LICENSE",
   "engines": {
-    "node": "^18.0.0 || ^20.0.0",
-    "npm": "^9.0.0 || ^10.0.0"
+    "node": "^18.0.0 || ^20.0.0 || ^22.0.0",
+    "npm": "^9.0.0 || ^10.0.0 || ^11.0.0"
   },
   "ccExtensibility": {
     "extends": "@salesforce/retail-react-app",
     "overridesDir": "overrides"
   },
   "devDependencies": {
-    "@salesforce/retail-react-app": "5.0.0"
+    "@salesforce/retail-react-app": "6.0.0"
   },
   "scripts": {
     "lint": "pwa-kit-dev lint \"**/*.{js,jsx}\"",
