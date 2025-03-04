@@ -1,8 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import PropTypes from 'prop-types'
-import {FormattedMessage} from 'react-intl'
 import {useLocation} from 'react-router-dom'
-import {Divider, Stack, Text} from '@salesforce/retail-react-app/app/components/shared/ui'
+import {Stack} from '@salesforce/retail-react-app/app/components/shared/ui'
 import {getConfig} from '@salesforce/pwa-kit-runtime/utils/ssr-config'
 import useNavigation from '@salesforce/retail-react-app/app/hooks/use-navigation'
 import {useReachFive} from './../reach5/ReachFiveContext'
@@ -67,7 +66,7 @@ const SocialLogin = () => {
     }, [reach5Client])
 
     return (
-        <Stack spacing={8} paddingLeft={4} paddingRight={4}>
+        <Stack spacing={8}>
             {!authenticated && loaded && <div id="social-login-modal-container" />}
         </Stack>
     )
