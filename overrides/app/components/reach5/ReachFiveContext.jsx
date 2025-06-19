@@ -8,6 +8,7 @@ const ReachFiveContext = createContext()
 export const ReachFiveProvider = ({children}) => {
     const [reach5Client, setReach5Client] = useState(null)
     const [reach5SessionInfo, setReach5SessionInfo] = useState(null)
+    const [reach5UserInfos, setReach5UserInfos] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
@@ -28,8 +29,16 @@ export const ReachFiveProvider = ({children}) => {
                 locale: 'en'
             })
             setReach5Client(client)
-            const customerInfo = await client.core.getSessionInfo()
-            setReach5SessionInfo(customerInfo)
+
+            const session = await client.core.checkSession();
+            setReach5SessionInfo(session);
+
+            const userInfos = await client.core.getUser({
+                accessToken: session.accessToken,
+                fields: 'id,givenName,familyName,createdAt,updatedAt' //add whatever you need
+            });
+            setReach5UserInfos(userInfos);
+            
         } catch (error) {
             setError(error)
         } finally {
@@ -42,7 +51,7 @@ export const ReachFiveProvider = ({children}) => {
     }, [getReachFive])
 
     return (
-        <ReachFiveContext.Provider value={{reach5Client, reach5SessionInfo, loading, error}}>
+        <ReachFiveContext.Provider value={{reach5Client, reach5UserInfos, reach5SessionInfo, loading, error}}>
             {children}
         </ReachFiveContext.Provider>
     )

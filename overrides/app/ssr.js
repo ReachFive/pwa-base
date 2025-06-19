@@ -72,12 +72,19 @@ const {handler} = runtime.createHandler(options, (app) => {
                         // Connect to Einstein APIs
                         ...process.env.PWA_KIT_CONNECT_SRC.split(','),
                         'api.cquotient.com'
+                    ],
+                    'frame-src': [
+                        // Needed to make client.core.checkSession() work
+                        ...process.env.PWA_KIT_FRAME_SRC.split(',')
                     ]
                 }
             }
         })
     )
-
+    app.use((req, res, next) => {
+        res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
+        next()
+    })
     // Handle the redirect from SLAS as to avoid error
     app.get('/callback?*', (req, res) => {
         // This endpoint does nothing and is not expected to change
